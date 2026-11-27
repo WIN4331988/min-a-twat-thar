@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>မင်းအတွက်သာ (သီးသန့်)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fff1f3' stroke='%23c81e47' stroke-width='3'/%3E%3Cpath d='M32 14 C25 22, 24 30, 32 36 C40 30, 39 22, 32 14 Z' fill='%23d91e4a'/%3E%3Cpath d='M16 26 C24 25, 30 29, 32 36 C24 38, 17 34, 16 26 Z' fill='%23e11d48'/%3E%3Cpath d='M48 26 C40 25, 34 29, 32 36 C40 38, 47 34, 48 26 Z' fill='%23e11d48'/%3E%3Cpath d='M20 42 C25 35, 30 35, 32 36 C29 44, 24 46, 20 42 Z' fill='%23be123c'/%3E%3Cpath d='M44 42 C39 35, 34 35, 32 36 C35 44, 40 46, 44 42 Z' fill='%23be123c'/%3E%3Ccircle cx='32' cy='35' r='4' fill='%23ffd166'/%3E%3C/svg%3E">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      padding-top: 36px;
+    }
+    .chat-box {
+      width: 360px;
+      max-width: 92vw;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .app-logo {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .header-row h3 {
+      margin: 0;
+      font-size: 17px;
+      color: #222222;
+    }
+    .name-row {
+      margin-bottom: 10px;
+    }
+    .name-row input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+    .messages {
+      height: 260px;
+      overflow-y: auto;
+      border: 1px solid #dddddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+    .msg {
+      max-width: 78%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      word-wrap: break-word;
+    }
+    .msg-mine {
+      align-self: flex-end;
+      background: #1976d2;
+      color: #ffffff;
+    }
+    .msg-other {
+      align-self: flex-start;
+      background: #e4e6eb;
+      color: #111111;
+    }
+    .msg-meta {
+      font-size: 11px;
+      margin-bottom: 3px;
+      font-weight: bold;
+      opacity: 0.85;
+    }
+    .input-row {
+      display: flex;
+      gap: 6px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 8px 14px;
+      border: none;
+      background: #1976d2;
+      color: #ffffff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="chat-box">
+    <div class="header-row">
+      <svg class="app-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="တောင်ဇလပ်ပန်း လိုဂို">
+        <circle cx="32" cy="32" r="30" fill="#fff1f3" stroke="#c81e47" stroke-width="3"/>
+        <path d="M32 14 C25 22, 24 30, 32 36 C40 30, 39 22, 32 14 Z" fill="#d91e4a"/>
+        <path d="M16 26 C24 25, 30 29, 32 36 C24 38, 17 34, 16 26 Z" fill="#e11d48"/>
+        <path d="M48 26 C40 25, 34 29, 32 36 C40 38, 47 34, 48 26 Z" fill="#e11d48"/>
+        <path d="M20 42 C25 35, 30 35, 32 36 C29 44, 24 46, 20 42 Z" fill="#be123c"/>
+        <path d="M44 42 C39 35, 34 35, 32 36 C35 44, 40 46, 44 42 Z" fill="#be123c"/>
+        <circle cx="32" cy="35" r="4" fill="#ffd166"/>
+      </svg>
+      <h3>မင်းအတွက်သာ (သီးသန့်)</h3>
+    </div>
+    <div class="name-row">
+      <input type="text" id="userName" placeholder="သင့်နာမည် ရိုက်ထည့်ပါ..." value="ကျွန်တော်">
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-row">
+      <input type="text" id="msgInput" placeholder="စာရိုက်ပါ...">
+      <button onclick="sendMsg()">ပို့မယ်</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7HEDOOiMfvzl_keq_X6fHlNGbiRnTmzk",
+      authDomain: "my-chat-app-3225a.firebaseapp.com",
+      databaseURL: "https://my-chat-app-3225a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "my-chat-app-3225a",
+      storageBucket: "my-chat-app-3225a.firebasestorage.app",
+      messagingSenderId: "937850763046",
+      appId: "1:937850763046:web:b9444a77af445fa59533e7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const messagesRef = db.ref("messages");
+
+    function sendMsg() {
+      const nameInput = document.getElementById("userName");
+      const msgInput = document.getElementById("msgInput");
+      const sender = nameInput.value.trim() || "အမည်မသိ";
+      const text = msgInput.value.trim();
+      if (text === "") return;
+
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      messagesRef.push({
+        sender: sender,
+        text: text,
+        time: time
+      });
+
+      msgInput.value = "";
+      msgInput.focus();
+    }
+
+    messagesRef.on("child_added", function(snapshot) {
+      const data = snapshot.val();
+      if (!data) return;
+
+      const currentUser = (document.getElementById("userName").value.trim() || "ကျွန်တော်");
+      const senderName = data.sender || "အမည်မသိ";
+      const isMine = (senderName === currentUser);
+
+      const msgList = document.getElementById("messages");
+      const div = document.createElement("div");
+      div.className = "msg " + (isMine ? "msg-mine" : "msg-other");
+
+      const meta = document.createElement("div");
+      meta.className = "msg-meta";
+      meta.textContent = senderName + " • " + (data.time || "");
+
+      const body = document.createElement("div");
+      body.textContent = data.text || "";
+
+      div.appendChild(meta);
+      div.appendChild(body);
+      msgList.appendChild(div);
+      msgList.scrollTop = msgList.scrollHeight;
+    });
+
+    document.getElementById("msgInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        sendMsg();
+      }
+    });
+  </script>
+</body>
+</html>
